@@ -4,7 +4,7 @@ type WordProps = {
   word: string;
   selected: boolean;
   onClick: MouseEventHandler<HTMLSpanElement>;
-  state: string;
+  state: "positive" | "negative" | "default";
 };
 
 export const Word = ({ word, selected, onClick, state }: WordProps) => {
@@ -12,7 +12,11 @@ export const Word = ({ word, selected, onClick, state }: WordProps) => {
     <>
       <span
         onClick={onClick}
-        className={clsx("px-1 rounded", selected && "bg-yellow-300")}
+        className={clsx(
+          "px-1 rounded",
+          state === "positive" && "bg-green-300",
+          selected && state === "default" && "bg-yellow-300",
+        )}
       >
         {word}
       </span>

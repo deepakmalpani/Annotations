@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Word } from "./word";
 import { produce } from "immer";
 import { useCtrlKey } from "@/hooks/use-ctrl-key";
@@ -14,11 +14,20 @@ export const Annotation = ({ paragraph }: AnnotationProps) => {
   const [selectedWords, setSelectedWords] = useState(
     Object.fromEntries(words.map((_, index) => [index, false])),
   );
+  const [positiveAnnotations, setPositiveAnnotations] = useState(
+    Object.fromEntries(words.map((_, index) => [index, false])),
+  );
+  const [negativeAnnotations, setNegativeAnnotations] = useState(
+    Object.fromEntries(words.map((_, index) => [index, false])),
+  );
 
-  const onWordClick = (
-    e: React.MouseEvent<HTMLSpanElement, MouseEvent>,
-    index: number,
-  ) => {
+  const resetAnnotations = (annotations: Record<string, boolean>) => {
+    Object.keys(annotations).forEach((i) => {
+      annotations[i] = false;
+    });
+  };
+
+  const onWordClick = (index: number) => {
     setSelectedWords(
       produce(selectedWords, (draft) => {
         Object.keys(draft).forEach((i) => {
@@ -28,6 +37,18 @@ export const Annotation = ({ paragraph }: AnnotationProps) => {
               : isCtrlKeyPressed
                 ? draft[Number(i)]
                 : false;
+        });
+      }),
+    );
+  };
+
+  const onPositiveAnnotationClick = () => {
+    setPositiveAnnotations(
+      produce(positiveAnnotations, (draft) => {
+        Object.keys(draft).forEach((i) => {
+          if (selectedWords[i]) {
+            draft[i] = true;
+          }
         });
       }),
     );
@@ -43,8 +64,8 @@ export const Annotation = ({ paragraph }: AnnotationProps) => {
                 word={item}
                 key={index}
                 selected={selectedWords[index]}
-                state=""
-                onClick={(e) => onWordClick(e, index)}
+                state={positiveAnnotations[index] ? "positive" : "default"}
+                onClick={() => onWordClick(index)}
               ></Word>
             );
           })}
@@ -54,6 +75,7 @@ export const Annotation = ({ paragraph }: AnnotationProps) => {
             className="px-4 py-2 bg-green-600 text-white font-medium
          hover:bg-green-700 focus:outline-none focus:ring-2
          focus:ring-green-500 focus:ring-offset-2 m-2"
+            onClick={onPositiveAnnotationClick}
           >
             Positive annotation
           </button>
