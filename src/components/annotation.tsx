@@ -54,6 +54,12 @@ export const Annotation = ({ paragraph }: AnnotationProps) => {
     );
   };
 
+  const onResetAnnotationClick = () => {
+    setPositiveAnnotations(produce(positiveAnnotations, draft => {
+      resetAnnotations(draft);
+    }))
+  }
+
   return (
     <>
       <div className="w-6xl">
@@ -90,6 +96,7 @@ export const Annotation = ({ paragraph }: AnnotationProps) => {
             className="px-4 py-2 bg-gray-600 text-white font-medium
          hover:bg-gray-700 focus:outline-none focus:ring-2
          focus:ring-gray-500 focus:ring-offset-2 m-2"
+         onClick={onResetAnnotationClick}
           >
             Reset annotation
           </button>
