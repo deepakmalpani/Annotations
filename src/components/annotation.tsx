@@ -28,37 +28,67 @@ export const Annotation = ({ paragraph }: AnnotationProps) => {
   };
 
   const onWordClick = (index: number) => {
-    setSelectedWords(
-      produce(selectedWords, (draft) => {
-        Object.keys(draft).forEach((i) => {
-          draft[Number(i)] =
-            Number(i) === index
-              ? true
-              : isCtrlKeyPressed
-                ? draft[Number(i)]
-                : false;
-        });
-      }),
-    );
+    const newPositiveAnnotations = { ...positiveAnnotations };
+    const newSelectedWords = { ...selectedWords };
+    const newNegativeAnnotations = { ...negativeAnnotations };
+    Object.keys(newPositiveAnnotations).forEach((i) => {
+      if (Number(i) === index) {
+        newPositiveAnnotations[i] = false;
+        newSelectedWords[i] = true;
+        newNegativeAnnotations[i] = false;
+      } else if (!isCtrlKeyPressed) {
+        newSelectedWords[i] = false;
+      }
+    });
+    setSelectedWords(newSelectedWords);
+    setPositiveAnnotations(newPositiveAnnotations);
+    setNegativeAnnotations(newNegativeAnnotations);
   };
 
   const onPositiveAnnotationClick = () => {
-    setPositiveAnnotations(
-      produce(positiveAnnotations, (draft) => {
-        Object.keys(draft).forEach((i) => {
-          if (selectedWords[i]) {
-            draft[i] = true;
-          }
-        });
-      }),
-    );
+    const newPositiveAnnotations = { ...positiveAnnotations };
+    const newSelectedWords = { ...selectedWords };
+    const newNegativeAnnotations = { ...negativeAnnotations };
+    Object.keys(newPositiveAnnotations).forEach((i) => {
+      if (selectedWords[i]) {
+        newPositiveAnnotations[i] = true;
+        newSelectedWords[i] = false;
+        newNegativeAnnotations[i] = false;
+      }
+    });
+    setPositiveAnnotations(newPositiveAnnotations);
+    setSelectedWords(newSelectedWords);
+    setNegativeAnnotations(newNegativeAnnotations);
+  };
+
+  const onNegativeAnnotationClick = () => {
+    const newPositiveAnnotations = { ...positiveAnnotations };
+    const newSelectedWords = { ...selectedWords };
+    const newNegativeAnnotations = { ...negativeAnnotations };
+    Object.keys(newPositiveAnnotations).forEach((i) => {
+      if (selectedWords[i]) {
+        newPositiveAnnotations[i] = false;
+        newSelectedWords[i] = false;
+        newNegativeAnnotations[i] = true;
+      }
+    });
+    setPositiveAnnotations(newPositiveAnnotations);
+    setSelectedWords(newSelectedWords);
+    setNegativeAnnotations(newNegativeAnnotations);
   };
 
   const onResetAnnotationClick = () => {
-    setPositiveAnnotations(produce(positiveAnnotations, draft => {
-      resetAnnotations(draft);
-    }))
-  }
+    setPositiveAnnotations(
+      produce(positiveAnnotations, (draft) => {
+        resetAnnotations(draft);
+      }),
+    );
+    setNegativeAnnotations(
+      produce(negativeAnnotations, (draft) => {
+        resetAnnotations(draft);
+      }),
+    );
+  };
 
   return (
     <>
@@ -70,7 +100,13 @@ export const Annotation = ({ paragraph }: AnnotationProps) => {
                 word={item}
                 key={index}
                 selected={selectedWords[index]}
-                state={positiveAnnotations[index] ? "positive" : "default"}
+                state={
+                  positiveAnnotations[index]
+                    ? "positive"
+                    : negativeAnnotations[index]
+                      ? "negative"
+                      : "default"
+                }
                 onClick={() => onWordClick(index)}
               ></Word>
             );
@@ -89,6 +125,7 @@ export const Annotation = ({ paragraph }: AnnotationProps) => {
             className="px-4 py-2 bg-red-600 text-white font-medium
          hover:bg-red-700 focus:outline-none focus:ring-2
          focus:ring-red-500 focus:ring-offset-2 m-2"
+            onClick={onNegativeAnnotationClick}
           >
             Negative annotation
           </button>
@@ -96,7 +133,7 @@ export const Annotation = ({ paragraph }: AnnotationProps) => {
             className="px-4 py-2 bg-gray-600 text-white font-medium
          hover:bg-gray-700 focus:outline-none focus:ring-2
          focus:ring-gray-500 focus:ring-offset-2 m-2"
-         onClick={onResetAnnotationClick}
+            onClick={onResetAnnotationClick}
           >
             Reset annotation
           </button>

@@ -15,6 +15,7 @@ export const Word = ({ word, selected, onClick, state }: WordProps) => {
         className={clsx(
           "px-1 rounded",
           state === "positive" && "bg-green-300",
+          state === "negative" && "bg-red-300",
           selected && state === "default" && "bg-yellow-300",
         )}
       >
